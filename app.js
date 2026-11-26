@@ -111,7 +111,7 @@ function cardHTML(w, n) {
         <p class="ko">${w.exk}</p>
       </div>
       <div class="card-foot">
-        <label class="check"><input type="checkbox" data-learn="${w.w}" ${done ? "checked" : ""}> 외웠어요!</label>
+        <label class="check"><input type="checkbox" data-learn="${w.w}" ${done ? "checked" : ""}> 외웠어!</label>
       </div>
     </div>
   </article>`;
@@ -148,7 +148,7 @@ function renderArchive() {
       <td class="preview col-hide">${ws.map(w => w.m.split(",")[0]).join(" · ")}</td></tr>`);
   }
   document.getElementById("archiveBody").innerHTML = rows.join("") ||
-    `<tr><td colspan="4" class="empty">검색 결과가 없어요.</td></tr>`;
+    `<tr><td colspan="4" class="empty">검색 결과가 없어.</td></tr>`;
 }
 function toggleArchiveDay(tr) {
   const next = tr.nextElementSibling;
@@ -175,7 +175,7 @@ function showQuestion() {
   const area = document.getElementById("quizArea");
   if (quiz.i >= quiz.items.length) {
     const t = quiz.items.length, s = quiz.score;
-    const msg = s === t ? "완벽해요! 🎉" : s >= t * 0.6 ? "잘했어요! 조금만 더 👍" : "어원 이야기를 한 번 더 읽어 볼까요? 💪";
+    const msg = s === t ? "완벽해! 🎉" : s >= t * 0.6 ? "잘했어! 조금만 더 👍" : "어원 이야기를 한 번 더 읽어 볼까? 💪";
     area.innerHTML = `<div class="quiz-result"><div class="score">${s} / ${t}</div><p>${msg}</p>
       <button class="btn" data-quiz="again">다시 풀기</button></div>`;
     return;
@@ -184,7 +184,7 @@ function showQuestion() {
   const wrong = shuffle(WORDS.filter(x => x.w !== w.w)).slice(0, 3);
   const choices = shuffle([w, ...wrong]);
   area.innerHTML = `
-    <div class="quiz-q">문제 ${quiz.i + 1} / ${quiz.items.length} · 알맞은 뜻을 고르세요</div>
+    <div class="quiz-q">문제 ${quiz.i + 1} / ${quiz.items.length} · 알맞은 뜻을 골라 봐</div>
     <div class="quiz-word">${w.w} <button data-say="${w.w}" title="발음 듣기">🔊</button></div>
     <div class="ipa">${w.p}</div>
     <div class="choices">${choices.map(c => `<button class="choice" data-ans="${c.w === w.w ? 1 : 0}">${c.m}</button>`).join("")}</div>
@@ -197,7 +197,7 @@ function answer(btn) {
   document.querySelectorAll(".choice").forEach(b => { b.disabled = true; if (b.dataset.ans === "1") b.classList.add("right"); });
   if (!right) btn.classList.add("wrong");
   document.getElementById("quizFeedback").innerHTML = `
-    <div class="quiz-hint"><b>${right ? "정답! ⭕" : "아쉬워요 ❌"}</b> ${esc(w.e)}</div>
+    <div class="quiz-hint"><b>${right ? "정답! ⭕" : "아쉽다 ❌"}</b> ${esc(w.e)}</div>
     <button class="btn quiz-next" data-quiz="next">${quiz.i + 1 < quiz.items.length ? "다음 문제 →" : "결과 보기"}</button>`;
 }
 
@@ -256,4 +256,4 @@ window.addEventListener("hashchange", () => { showTab(); window.scrollTo({ top: 
 document.getElementById("todayLabel").textContent = `오늘은 ${fmtDate(kstNow())}`;
 showTab();
 tickCountdown(); setInterval(tickCountdown, 1000);
-document.getElementById("quizArea").innerHTML = `<p class="empty">위 버튼을 눌러 퀴즈를 시작하세요!</p>`;
+document.getElementById("quizArea").innerHTML = `<p class="empty">위 버튼을 눌러서 퀴즈를 시작해 봐!</p>`;
