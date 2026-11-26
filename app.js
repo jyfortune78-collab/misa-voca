@@ -90,7 +90,8 @@ function highlight(sentence, w) {
 }
 function examTag(w) {
   if (!w.y) return "";
-  return `<span class="exam-tag">📝 ${w.y}학년도 수능 기출${w.src === "듣기" ? " · 듣기" : ""}</span>`;
+  const exam = !w.t || w.t === "수능" ? "수능" : `${w.t} 모의평가`;
+  return `<span class="exam-tag">📝 ${w.y}학년도 ${exam}${w.src === "듣기" ? " · 듣기" : ""}</span>`;
 }
 function cardHTML(w, n) {
   const done = learned.has(w.w);
@@ -109,7 +110,7 @@ function cardHTML(w, n) {
     <div class="card-body">
       <div><span class="row-label">뜻</span><div class="meaning">${w.m}</div></div>
       <div class="etym"><span class="row-label">어원 이야기</span><p>${esc(w.e)}</p></div>
-      <div class="example"><span class="row-label">수능 기출 예문</span> ${examTag(w)}
+      <div class="example"><span class="row-label">기출 예문</span> ${examTag(w)}
         <p class="en">${highlight(w.ex, w)}
           <button class="mini" data-say-sentence="${esc(w.ex)}" title="예문 듣기" style="border:0;background:none;cursor:pointer;font-size:16px">🔈</button></p>
         <p class="ko">${w.exk}</p>
