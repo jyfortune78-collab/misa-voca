@@ -83,10 +83,14 @@ async function speak(word, slow, btn) {
 
 // ===== 카드 그리기 =====
 function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-function highlight(sentence, word) {
-  const stem = word.length > 4 ? word.slice(0, word.length - 2) : word;
-  const re = new RegExp(`\\b(${stem}\\w*)`, "i");
+function highlight(sentence, w) {
+  const form = w.h || (w.w.length > 4 ? w.w.slice(0, w.w.length - 2) : w.w);
+  const re = new RegExp(`\\b(${form}\\w*)`, "i");
   return esc(sentence).replace(re, '<span class="hl">$1</span>');
+}
+function examTag(w) {
+  if (!w.y) return "";
+  return `<span class="exam-tag">📝 ${w.y}학년도 수능 기출${w.src === "듣기" ? " · 듣기" : ""}</span>`;
 }
 function cardHTML(w, n) {
   const done = learned.has(w.w);
@@ -105,8 +109,8 @@ function cardHTML(w, n) {
     <div class="card-body">
       <div><span class="row-label">뜻</span><div class="meaning">${w.m}</div></div>
       <div class="etym"><span class="row-label">어원 이야기</span><p>${esc(w.e)}</p></div>
-      <div class="example"><span class="row-label">예문</span>
-        <p class="en">${highlight(w.ex, w.w)}
+      <div class="example"><span class="row-label">수능 기출 예문</span> ${examTag(w)}
+        <p class="en">${highlight(w.ex, w)}
           <button class="mini" data-say-sentence="${esc(w.ex)}" title="예문 듣기" style="border:0;background:none;cursor:pointer;font-size:16px">🔈</button></p>
         <p class="ko">${w.exk}</p>
       </div>
