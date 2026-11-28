@@ -1,5 +1,5 @@
 // ===== 설정 =====
-const START_DATE = "2026-11-26"; // 1일차 날짜 (한국 시간)
+const START_DATE = "2026-12-01"; // 1일차 날짜 = 홈페이지 오픈일 (한국 시간)
 const PER_DAY = 5;               // 하루 단어 수
 const OPEN_HOUR = 7;             // 매일 아침 7시(한국 시간)에 새 단어 공개
 const DAY_MS = 86400000;
@@ -136,8 +136,15 @@ function cardHTML(w, n) {
 }
 
 // ===== 오늘의 단어 =====
+function isBeforeOpen() { return kstNow().getTime() < startMs() + OPEN_HOUR * 3600000; }
 function renderToday() {
   const d = currentDayIndex();
+  const notice = document.getElementById("openNotice");
+  if (notice) {
+    const open = dateOfDay(0);
+    notice.hidden = !isBeforeOpen();
+    notice.textContent = `🎉 ${open.getUTCMonth() + 1}월 ${open.getUTCDate()}일(${"일월화수목금토"[open.getUTCDay()]}) 아침 ${OPEN_HOUR}시에 정식 오픈해! 지금은 1일차 단어를 미리 볼 수 있어.`;
+  }
   const words = wordsOfDay(d);
   document.getElementById("dayBadge").textContent = `${d + 1}일차 · ${fmtDate(dateOfDay(d))}`;
   document.getElementById("todayCards").innerHTML = words.map((w, i) => cardHTML(w, i + 1)).join("");
