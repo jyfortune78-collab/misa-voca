@@ -68,17 +68,30 @@ function tts(text, rate) {
   });
 }
 if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
-async function speak(word, slow, btn) {
+// 버튼을 누른 그 순간에 바로 재생을 시작해야 휴대폰(특히 아이폰)이 소리를 막지 않아.
+// 그래서 원어민 녹음은 카드를 그릴 때 미리 찾아 두고, 누르는 즉시 재생해.
+// 녹음이 아직 없거나 재생이 막히면 곧바로 브라우저 음성으로 읽어 줘.
+function prefetchRecordings(words) { words.forEach(w => { findRecording(w.w); }); }
+function speak(word, slow, btn) {
   btn && btn.classList.add("playing");
+  const done = () => btn && btn.classList.remove("playing");
+  const fallback = () => tts(word, slow ? 0.55 : 0.9).then(done);
+  const url = slow ? null : audioCache[word];
+  if (!url) {
+    if (!slow && !(word in audioCache)) findRecording(word); // 다음번을 위해 미리 찾아 두기
+    fallback();
+    return;
+  }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  let fell = false;
+  const fallOnce = () => { if (!fell) { fell = true; fallback(); } };
   try {
-    const url = slow ? null : await findRecording(word);
-    if (url) {
-      const a = new Audio(url);
-      await new Promise((res) => { a.onended = a.onerror = res; a.play().catch(res); });
-    } else {
-      await tts(word, slow ? 0.55 : 0.9);
-    }
-  } finally { btn && btn.classList.remove("playing"); }
+    const a = new Audio(url);
+    a.onended = done;
+    a.onerror = fallOnce;
+    const p = a.play();
+    if (p && p.catch) p.catch(fallOnce);
+  } catch (e) { fallOnce(); }
 }
 
 // ===== 카드 그리기 =====
@@ -128,6 +141,7 @@ function renderToday() {
   const words = wordsOfDay(d);
   document.getElementById("dayBadge").textContent = `${d + 1}일차 · ${fmtDate(dateOfDay(d))}`;
   document.getElementById("todayCards").innerHTML = words.map((w, i) => cardHTML(w, i + 1)).join("");
+  prefetchRecordings(words);
   updateProgress();
 }
 function updateProgress() {
@@ -162,6 +176,7 @@ function toggleArchiveDay(tr) {
   const detail = document.createElement("tr");
   detail.className = "detail-row";
   detail.innerHTML = `<td colspan="4"><div class="cards">${wordsOfDay(d).map((w, i) => cardHTML(w, i + 1)).join("")}</div></td>`;
+  prefetchRecordings(wordsOfDay(d));
   tr.after(detail); tr.classList.add("open");
 }
 
@@ -186,6 +201,7 @@ function showQuestion() {
     return;
   }
   const w = quiz.items[quiz.i];
+  prefetchRecordings([w]);
   const wrong = shuffle(WORDS.filter(x => x.w !== w.w)).slice(0, 3);
   const choices = shuffle([w, ...wrong]);
   area.innerHTML = `
